@@ -1,0 +1,47 @@
+# Começamos sempre pela imagem "base": a plataforma onde nossa aplicação vai rodar
+# Obs: quando não damos uma orientação (URL) específica, o próprio Docker assume que iremos usar o DockerHub (https://hub.docker.com)
+FROM node:21
+
+# Cada comando cria uma camada dentro do Docker
+# Ps.: CMD não conta como layer em um comando onde buildamos a imagem (docker image build) porque não estamos startando a aplicação
+
+# Geralmente pegamos uma imagem que já tem a tecnologia (ex: Node) para economizar comandos
+# Exemplo - caso a gente pegasse o Ubuntu, apenas, teríamos que rodar algo tipo assim para ter o Node:
+# RUN apt-get update && apt-get install node
+
+# --- DICA: um Dockerfile sempre deve seguir o fluxo comum que seguiríamos se quiséssemos executar essa aplicação localmente.
+# Alguns comandos disponíveis: WORKDIR, RUN, ENV
+
+# Define o diretório que nossa imagem vai trabalhar (ex: não queremos trabalhar na home ou na raiz /, então a gente define uma pasta /app).
+# A partir de agora, todos os comandos que a gente executar, vai ser rodado dentro da pasta /app.
+WORKDIR /app
+
+# Permite que a gente copie algum arquivo/pasta de fora para dentro do nosso WORKDIR /app
+# Também poderia ser: RUN cp ...
+COPY package*.json ./
+
+# Permite que a gente execute qualquer instrução (baseado em Linux) dentro da nossa imagem.
+RUN npm install
+
+# Copiando tudo de fora (de onde o Dockerfile está) para dentro (nossa raiz, nesse caso, /app)
+COPY . .
+
+# Responsável por expor a porta à qual poderemos usar para acessar a aplicação (estará comunicável para outros containers, mas ainda não conseguiremos acessá-lo pela web)
+# Ps.: como ele só expõe a porta, não é contabilizado como um "passo" na hora do `docker image build`
+EXPOSE 3000
+
+# É o comando que, de fato, vai criar o processo - será executado quando rodarmos o container
+# Já o CMD (abaixo), pode ser um *complemento* do ENTRYPOINT ou um comando *passado para* o ENTRYPOINT
+ENTRYPOINT ['npm', 'start']
+# CMD ['npm', 'test']
+
+# Exemplo de complemento:
+# ENTRYPOINT ["npm"]
+# CMD ["start"]
+
+# Executa um comando novamente
+# Ps.: também poderia ser -> CMD npm start
+# Da forma colocada abaixo, garantimos que não teremos confusão com espaços.
+CMD ['npm', 'start']
+
+# EXEMPLO PARA EXECUTAR: docker image build .
