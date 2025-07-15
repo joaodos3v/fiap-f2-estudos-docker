@@ -1,0 +1,8 @@
+# Depois de versionarmos, a gente poderia basear nosso Dockerfile na imagem que criamos lá no DockerHub
+FROM douglaslimaprof/docker-fiap:1.1
+
+# Se a gente precisasse atualizar algo - ex: o package.json
+COPY package.json .
+
+# Ps.: se estivesse em um ECR, seria algo tipo assim:
+# FROM ecr.amazonaws.com/docker-fiap:1.1
